@@ -1,0 +1,11 @@
+10
+T g
+T s
+T y
+T c
+T t
+T o
+U 4
+T w
+P 2
+P 1

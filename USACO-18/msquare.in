@@ -1,0 +1,560 @@
+1 2 3 4 5 6 7 8
+4 3 1 2 5 6 7 8 ABBBCABBBCBBBCBCABCBBB
+2 6 8 4 5 7 3 1 BCABCCB
+5 8 7 6 3 2 1 4 AB
+4 8 7 3 6 1 5 2
+8 7 6 5 1 2 3 4
+5 1 2 4 3 7 8 6 
+1 7 2 4 5 3 6 8 C
+4 1 2 3 6 7 8 5 B
+8 7 6 5 4 3 2 1 A
+
+/*
+ID: 11athom1
+TASK: msquare
+LANG: C++
+*/
+
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+int fact[10] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+
+int convtoindex(string arrange, int size)
+{
+    if (size == 0) return 0;
+    int add = (arrange[0]-'0'-1)*fact[size-1];
+//    cout << add << " " << size << endl;
+    for (int i = 0; i < size; i++)
+    {
+//        cout << arrange[i] << " ";
+        if (arrange[i] > arrange[0])
+        {
+            arrange[i]--;
+        }
+    }
+//    cout << endl;
+    return add + convtoindex(arrange.substr(1), size - 1);
+}
+
+string convtoarrange(int n, int size)
+{
+    if (size == 0)
+    {
+        return "";
+    }
+    char add = (n/fact[size-1] + 1) + '0';
+    string prev = convtoarrange(n%fact[size-1], size-1);
+    for (int i = 0; i < size-1; i++)
+    {
+        if (prev[i] >= add)
+        {
+            prev[i] = prev[i] + 1;
+        }
+    }
+    return add + prev;
+}
+
+string a(string to)
+{
+    string from = "00000000";
+    from[0] = to[7];
+    from[1] = to[6];
+    from[2] = to[5];
+    from[3] = to[4];
+    from[4] = to[3];
+    from[5] = to[2];
+    from[6] = to[1];
+    from[7] = to[0];
+    return from;
+}
+
+string b(string to)
+{
+    string from = "00000000";
+    from[0] = to[3];
+    from[1] = to[0];
+    from[2] = to[1];
+    from[3] = to[2];
+    from[4] = to[5];
+    from[5] = to[6];
+    from[6] = to[7];
+    from[7] = to[4];
+    return from;
+}
+
+string c(string to)
+{
+    string from = to;
+    from[1] = to[6];
+    from[2] = to[1];
+    from[5] = to[2];
+    from[6] = to[5];
+    return from;
+}
+
+bool found[40320];
+int prev[40320];
+char move[40320];
+
+int main(int argc, char** argv) 
+{
+    ifstream fin("msquare.in");
+    ofstream fout("msquare.out");
+    
+    string aim = "";
+    for (int i = 0; i < 8; i++)
+    {
+        char c;
+        fin >> c;
+        aim += c;
+    }
+    
+    int aimindex = convtoindex(aim, 8);
+    
+    int asearch[40320];
+    int bsearch[40320];
+    int csearch[40320];
+    int numa = 1;
+    int numb = 0;
+    int numc = 0;
+    asearch[0] = 0;
+    found[0] = true;
+    prev[0] = -1;
+    
+    int nextasearch[40320];
+    int nextbsearch[40320];
+    int nextcsearch[40320];
+    int nextnuma = 0;
+    int nextnumb = 0;
+    int nextnumc = 0;    
+    
+    int j = 0;
+    
+    while (!found[aimindex])
+    {
+        j++;
+        for (int i = 0; i < numa; i++)
+        {
+            int searching = asearch[i];
+            string searchingarrange = convtoarrange(searching, 8);
+            
+            // A
+            int aindex = convtoindex(a(searchingarrange), 8);
+            if (!found[aindex])
+            {
+                found[aindex] = true;
+                prev[aindex] = searching;
+                move[aindex] = 'A';
+                nextasearch[nextnuma] = aindex;
+                nextnuma++;
+            }
+            
+            // B
+            int bindex = convtoindex(b(searchingarrange), 8);
+            if (!found[bindex])
+            {
+                found[bindex] = true;
+                prev[bindex] = searching;
+                move[bindex] = 'B';
+                nextbsearch[nextnumb] = bindex;
+                nextnumb++;
+            }
+            
+            // C
+            int cindex = convtoindex(c(searchingarrange), 8);
+            if (!found[cindex])
+            {
+                found[cindex] = true;
+                prev[cindex] = searching;
+                move[cindex] = 'C';
+                nextcsearch[nextnumc] = cindex;
+                nextnumc++;
+            }
+        }
+        
+        for (int i = 0; i < numb; i++)
+        {
+            int searching = bsearch[i];
+            string searchingarrange = convtoarrange(searching, 8);
+            
+            // A
+            int aindex = convtoindex(a(searchingarrange), 8);
+            if (!found[aindex])
+            {
+                found[aindex] = true;
+                prev[aindex] = searching;
+                move[aindex] = 'A';
+                nextasearch[nextnuma] = aindex;
+                nextnuma++;
+            }
+            
+            // B
+            int bindex = convtoindex(b(searchingarrange), 8);
+            if (!found[bindex])
+            {
+                found[bindex] = true;
+                prev[bindex] = searching;
+                move[bindex] = 'B';
+                nextbsearch[nextnumb] = bindex;
+                nextnumb++;
+            }
+            
+            // C
+            int cindex = convtoindex(c(searchingarrange), 8);
+            if (!found[cindex])
+            {
+                found[cindex] = true;
+                prev[cindex] = searching;
+                move[cindex] = 'C';
+                nextcsearch[nextnumc] = cindex;
+                nextnumc++;
+            }
+        }
+        
+        for (int i = 0; i < numc; i++)
+        {
+            int searching = csearch[i];
+            string searchingarrange = convtoarrange(searching, 8);
+            
+            // A
+            int aindex = convtoindex(a(searchingarrange), 8);
+            if (!found[aindex])
+            {
+                found[aindex] = true;
+                prev[aindex] = searching;
+                move[aindex] = 'A';
+                nextasearch[nextnuma] = aindex;
+                nextnuma++;
+            }
+            
+            // B
+            int bindex = convtoindex(b(searchingarrange), 8);
+            if (!found[bindex])
+            {
+                found[bindex] = true;
+                prev[bindex] = searching;
+                move[bindex] = 'B';
+                nextbsearch[nextnumb] = bindex;
+                nextnumb++;
+            }
+            
+            // C
+            int cindex = convtoindex(c(searchingarrange), 8);
+            if (!found[cindex])
+            {
+                found[cindex] = true;
+                prev[cindex] = searching;
+                move[cindex] = 'C';
+                nextcsearch[nextnumc] = cindex;
+                nextnumc++;
+            }
+        }
+        
+        copy(nextasearch, nextasearch+nextnuma, asearch);
+        numa = nextnuma;
+        copy(nextbsearch, nextbsearch+nextnumb, bsearch);
+        numb = nextnumb;
+        copy(nextcsearch, nextcsearch+nextnumc, csearch);
+        numc = nextnumc;
+    }
+    
+    fout << j;
+    int curr = aimindex;
+    char ans[40320];
+    for (int i = 0; curr != 0; i++)
+    {
+        ans[i] = move[curr];
+        curr = prev[curr];
+    }
+    for (int i = j-1; i>=0; i--)
+    {
+        if ((j-i-1)%60==0)
+        {
+            fout << endl;
+        }
+        fout << ans[i];
+    }
+    fout << endl;
+    if (0 == aimindex)
+        fout << endl;
+    
+    return 0;
+}
+
+/*
+ID: 11athom1
+TASK: msquare
+LANG: C++
+*/
+
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+int fact[10] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+
+int convtoindex(string arrange, int size)
+{
+    if (size == 0) return 0;
+    int add = (arrange[0]-'0'-1)*fact[size-1];
+//    cout << add << " " << size << endl;
+    for (int i = 0; i < size; i++)
+    {
+//        cout << arrange[i] << " ";
+        if (arrange[i] > arrange[0])
+        {
+            arrange[i]--;
+        }
+    }
+//    cout << endl;
+    return add + convtoindex(arrange.substr(1), size - 1);
+}
+
+string convtoarrange(int n, int size)
+{
+    if (size == 0)
+    {
+        return "";
+    }
+    char add = (n/fact[size-1] + 1) + '0';
+    string prev = convtoarrange(n%fact[size-1], size-1);
+    for (int i = 0; i < size-1; i++)
+    {
+        if (prev[i] >= add)
+        {
+            prev[i] = prev[i] + 1;
+        }
+    }
+    return add + prev;
+}
+
+string a(string to)
+{
+    string from = "00000000";
+    from[0] = to[7];
+    from[1] = to[6];
+    from[2] = to[5];
+    from[3] = to[4];
+    from[4] = to[3];
+    from[5] = to[2];
+    from[6] = to[1];
+    from[7] = to[0];
+    return from;
+}
+
+string b(string to)
+{
+    string from = "00000000";
+    from[0] = to[1];
+    from[1] = to[2];
+    from[2] = to[3];
+    from[3] = to[0];
+    from[4] = to[7];
+    from[5] = to[4];
+    from[6] = to[5];
+    from[7] = to[6];
+    return from;
+}
+
+string c(string to)
+{
+    string from = to;
+    from[1] = to[2];
+    from[2] = to[5];
+    from[5] = to[6];
+    from[6] = to[1];
+    return from;
+}
+
+bool found[40320];
+int prev[40320];
+char move[40320];
+
+int main(int argc, char** argv) 
+{
+    ifstream fin("msquare.in");
+    ofstream fout("msquare.out");
+    
+    string aim = "";
+    for (int i = 0; i < 8; i++)
+    {
+        char c;
+        fin >> c;
+        aim += c;
+    }
+    
+    int aimindex = convtoindex(aim, 8);
+    
+    int asearch[40320];
+    int bsearch[40320];
+    int csearch[40320];
+    int numa = 1;
+    int numb = 0;
+    int numc = 0;
+    asearch[0] = aimindex;
+    found[aimindex] = true;
+    prev[aimindex] = -1;
+    
+    int nextasearch[40320];
+    int nextbsearch[40320];
+    int nextcsearch[40320];
+    int nextnuma = 0;
+    int nextnumb = 0;
+    int nextnumc = 0;    
+    
+    int j = 0;
+    
+    while (!found[0])
+    {
+        j++;
+        for (int i = 0; i < numa; i++)
+        {
+            int searching = asearch[i];
+            string searchingarrange = convtoarrange(searching, 8);
+            
+            // A
+            int aindex = convtoindex(a(searchingarrange), 8);
+            if (!found[aindex])
+            {
+                found[aindex] = true;
+                prev[aindex] = searching;
+                move[aindex] = 'A';
+                nextasearch[nextnuma] = aindex;
+                nextnuma++;
+            }
+            
+            // B
+            int bindex = convtoindex(b(searchingarrange), 8);
+            if (!found[bindex])
+            {
+                found[bindex] = true;
+                prev[bindex] = searching;
+                move[bindex] = 'B';
+                nextbsearch[nextnumb] = bindex;
+                nextnumb++;
+            }
+            
+            // C
+            int cindex = convtoindex(c(searchingarrange), 8);
+            if (!found[cindex])
+            {
+                found[cindex] = true;
+                prev[cindex] = searching;
+                move[cindex] = 'C';
+                nextcsearch[nextnumc] = cindex;
+                nextnumc++;
+            }
+        }
+        
+        for (int i = 0; i < numb; i++)
+        {
+            int searching = bsearch[i];
+            string searchingarrange = convtoarrange(searching, 8);
+            
+            // A
+            int aindex = convtoindex(a(searchingarrange), 8);
+            if (!found[aindex])
+            {
+                found[aindex] = true;
+                prev[aindex] = searching;
+                move[aindex] = 'A';
+                nextasearch[nextnuma] = aindex;
+                nextnuma++;
+            }
+            
+            // B
+            int bindex = convtoindex(b(searchingarrange), 8);
+            if (!found[bindex])
+            {
+                found[bindex] = true;
+                prev[bindex] = searching;
+                move[bindex] = 'B';
+                nextbsearch[nextnumb] = bindex;
+                nextnumb++;
+            }
+            
+            // C
+            int cindex = convtoindex(c(searchingarrange), 8);
+            if (!found[cindex])
+            {
+                found[cindex] = true;
+                prev[cindex] = searching;
+                move[cindex] = 'C';
+                nextcsearch[nextnumc] = cindex;
+                nextnumc++;
+            }
+        }
+        
+        for (int i = 0; i < numc; i++)
+        {
+            int searching = csearch[i];
+            string searchingarrange = convtoarrange(searching, 8);
+            
+            // A
+            int aindex = convtoindex(a(searchingarrange), 8);
+            if (!found[aindex])
+            {
+                found[aindex] = true;
+                prev[aindex] = searching;
+                move[aindex] = 'A';
+                nextasearch[nextnuma] = aindex;
+                nextnuma++;
+            }
+            
+            // B
+            int bindex = convtoindex(b(searchingarrange), 8);
+            if (!found[bindex])
+            {
+                found[bindex] = true;
+                prev[bindex] = searching;
+                move[bindex] = 'B';
+                nextbsearch[nextnumb] = bindex;
+                nextnumb++;
+            }
+            
+            // C
+            int cindex = convtoindex(c(searchingarrange), 8);
+            if (!found[cindex])
+            {
+                found[cindex] = true;
+                prev[cindex] = searching;
+                move[cindex] = 'C';
+                nextcsearch[nextnumc] = cindex;
+                nextnumc++;
+            }
+        }
+        
+        copy(nextasearch, nextasearch+nextnuma, asearch);
+        numa = nextnuma;
+        copy(nextbsearch, nextbsearch+nextnumb, bsearch);
+        numb = nextnumb;
+        copy(nextcsearch, nextcsearch+nextnumc, csearch);
+        numc = nextnumc;
+    }
+    
+    fout << j;
+    int curr = 0;
+    for (int i = 0; curr != aimindex; i++)
+    {
+        if (i%60==0)
+        {
+            fout << endl;
+        }
+        fout << move[curr];
+        curr = prev[curr];
+    }
+    fout << endl;
+    if (0 == aimindex)
+        fout << endl;
+    
+    return 0;
+}
+

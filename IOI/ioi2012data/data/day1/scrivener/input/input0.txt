@@ -1,0 +1,11 @@
+10
+T c
+T z
+T u
+T a
+T i
+T h
+T f
+T z
+P 3
+P 0
